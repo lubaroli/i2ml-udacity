@@ -45,7 +45,5 @@ print(float(len(features_test)-(labels_test.count(1)))/len(features_test))
 print("Number of true positives predicted: %i" %
       (sum([i*j for (i, j) in
        zip(clf.predict(features_test, labels_test), labels_test)])))
-print("Precision score: %0.3f" % 
-      precision_score(labels_test, clf.predict(features_test, labels_test)))
-print("Recall score: %0.3f" % 
-      recall_score(labels_test, clf.predict(features_test, labels_test)))
+print(metrics.precision_score(labels_test, clf.predict(features_test,
+                                                       labels_test)))

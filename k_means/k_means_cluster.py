@@ -44,13 +44,80 @@ data_dict = pickle.load( open("../final_project/final_project_dataset.pkl", "r")
 data_dict.pop("TOTAL", 0)
 
 
+def data_dict_min_max_scale(data_dict, features):
+    """ Scales the data_dict according to the features list using the min-max
+    algorithm. Data may be composed of numbers and strings.
+
+    :data_dict: dictionary of enron data
+    :features: list of features to be scaled on the enron dictionary
+    :returns: data_dict with scaled features
+    """
+    for feat in features:
+        feat_max = max(
+            data_dict[name][feat]
+            for name in data_dict.keys()
+            if isinstance(data_dict[name][feat], int)
+        )
+
+        feat_min = min(
+            data_dict[name][feat]
+            for name in data_dict.keys()
+            if isinstance(data_dict[name][feat], int)
+        )
+
+        base = feat_max - feat_min
+        
+        for name in data_dict.keys():
+            if isinstance(data_dict[name][feat], int):
+                data_dict[name][feat] = float(
+                    (data_dict[name][feat]-feat_min)) / base
+
+    return data_dict
+
+
+max_stock_option = max(
+    data_dict[name]['exercised_stock_options']
+    for name in data_dict.keys()
+    if isinstance(data_dict[name]['exercised_stock_options'], int)
+)
+
+min_stock_option = min(
+    data_dict[name]['exercised_stock_options']
+    for name in data_dict.keys()
+    if isinstance(data_dict[name]['exercised_stock_options'], int)
+)
+
+print("Maximum stock options: %i" % max_stock_option)
+print("Minimun stock options: %i" % min_stock_option)
+
+max_salary = max(
+    data_dict[name]['salary']
+    for name in data_dict.keys()
+    if isinstance(data_dict[name]['salary'], int)
+)
+
+min_salary = min(
+    data_dict[name]['salary']
+    for name in data_dict.keys()
+    if isinstance(data_dict[name]['salary'], int)
+)
+
+print("Maximum salary: %i" % max_salary)
+print("Minimun salary: %i" % min_salary)
+
+feature_1 = "salary"
+feature_2 = "exercised_stock_options"
+features_list = [feature_1, feature_2]
+scaled_data_dict = data_dict_min_max_scale(data_dict, features_list)
+
 ### the input features we want to use 
 ### can be any key in the person-level dictionary (salary, director_fees, etc.) 
 feature_1 = "salary"
 feature_2 = "exercised_stock_options"
+# feature_3 = "total_payments"
 poi  = "poi"
-features_list = [poi, feature_1, feature_2]
-data = featureFormat(data_dict, features_list )
+features_list = [poi, feature_1, feature_2] #, feature_3]
+data = featureFormat(scaled_data_dict, features_list )
 poi, finance_features = targetFeatureSplit( data )
 
 
@@ -59,13 +126,14 @@ poi, finance_features = targetFeatureSplit( data )
 ### for f1, f2, _ in finance_features:
 ### (as it's currently written, the line below assumes 2 features)
 for f1, f2 in finance_features:
-    plt.scatter( f1, f2 )
+    plt.scatter(f1, f2)
 plt.show()
 
 ### cluster here; create predictions of the cluster labels
 ### for the data and store them to a list called pred
-
-
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=2).fit(finance_features)
+pred = kmeans.predict(finance_features)
 
 
 ### rename the "name" parameter when you change the number of features

@@ -38,6 +38,15 @@ labels_train   = labels_train[:150]
 
 
 ### your code goes here
+from sklearn import tree
+clf = tree.DecisionTreeClassifier()
+clf.fit(features_train, labels_train)
+print(clf.score(features_test, labels_test))
 
-
-
+i = 0
+for p in clf.feature_importances_:
+    if p > 0.2:
+        print p
+        print i
+        print(vectorizer.get_feature_names()[i])
+    i += 1
